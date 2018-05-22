@@ -10,8 +10,8 @@ class Transaction {
     private final float value;
     private byte[] signature;
 
-    private ArrayList<TransactionInput> inputs = new ArrayList<>();
-    public ArrayList<TransactionOutput> outputs = new ArrayList<>();
+    private ArrayList<TransactionInput> inputs;
+    private ArrayList<TransactionOutput> outputs = new ArrayList<>();
 
     private static int sequence = 0;
 
@@ -20,6 +20,96 @@ class Transaction {
         this.to = to;
         this.value = value;
         this.inputs = inputs;
+    }
+
+    String getTransactionId() {
+        return transactionId;
+    }
+
+    void setTransactionId(String transactionId) {
+        this.transactionId = transactionId;
+    }
+
+    PublicKey getTo() {
+        return to;
+    }
+
+    PublicKey getFrom() {
+        return from;
+    }
+
+    float getValue() {
+        return value;
+    }
+
+    ArrayList<TransactionOutput> getOutputs() {
+        return outputs;
+    }
+
+    ArrayList<TransactionInput> getInputs() {
+        return inputs;
+    }
+
+    void addTransactionOutput(TransactionOutput transactionOutput) {
+        outputs.add(transactionOutput);
+    }
+
+    public boolean processTransaction() {
+        if (!verify()) {
+            System.out.println("Transaction signature failed");
+            return false;
+        }
+
+        for (TransactionInput input : inputs) {
+            input.setUtxo(SimpleChain.getUtxos().get(input.getTransactionOutputId()));
+        }
+
+        if (getInputsValue() < SimpleChain.getMinimumTransaction()) {
+            System.out.println("Transaction inputs are smaller than the minimum: " + getInputsValue());
+            return false;
+        }
+
+        float leftOver = getInputsValue() - value;
+        transactionId = computeHash();
+        outputs.add(new TransactionOutput(this.to, value, transactionId));
+        outputs.add(new TransactionOutput(this.from, leftOver, transactionId));
+
+        for (TransactionOutput output : outputs) {
+            SimpleChain.getUtxos().put(output.getId(), output);
+        }
+
+        for (TransactionInput input : inputs) {
+            if (input.getUtxo() == null) {
+                continue;
+            }
+
+            SimpleChain.getUtxos().remove(input.getUtxo().getId());
+        }
+
+        return true;
+    }
+
+    float getInputsValue() {
+        float total = 0;
+
+        for (TransactionInput input : inputs) {
+            if (input.getUtxo() == null) {
+                continue;
+            }
+            total += input.getUtxo().getValue();
+        }
+
+        return total;
+    }
+
+    float getOutputValues() {
+        float total = 0;
+
+        for (TransactionOutput output : outputs) {
+            total += output.getValue();
+        }
+
+        return total;
     }
 
    void sign(PrivateKey privateKey) {
