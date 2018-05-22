@@ -1,3 +1,4 @@
+import java.math.BigInteger;
 import java.util.Date;
 
 public class Block {
@@ -5,6 +6,7 @@ public class Block {
     private String previousHash;
     private String data;
     private long timeStamp;
+    private int nonce = 0;
 
     public Block(String data, String previousHash) {
         this.data = data;
@@ -14,10 +16,24 @@ public class Block {
     }
 
     public String computeHash() {
-        return StringUtil.computeSha256Hash(previousHash + Long.toString(timeStamp) + data);
+        return StringUtil.computeSha256Hash(
+            previousHash +
+            Long.toString(timeStamp) +
+            Integer.toString(nonce) +
+            data
+        );
     }
 
     public String getHash() {
         return hash;
+    }
+
+    public void mineBlock(int difficulty) {
+        String target = new String(new char[difficulty]).replace('\0', '0');
+
+        while(!hash.substring(0, difficulty).equals(target)) {
+            nonce ++;
+            hash = computeHash();
+        }
     }
 }
