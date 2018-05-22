@@ -1,11 +1,11 @@
 import java.security.*;
 import java.security.spec.ECGenParameterSpec;
 
-public class Wallet {
-    public PrivateKey privateKey;
-    public PublicKey publicKey;
+class Wallet {
+    private PrivateKey privateKey;
+    private PublicKey publicKey;
 
-    public Wallet() {
+    Wallet() {
         generateKeyPair();
     }
 
@@ -26,4 +26,19 @@ public class Wallet {
         }
     }
 
+    String getPrivateKeyString() {
+        return StringUtil.getStringFromKey(privateKey);
+    }
+
+    String getPublicKeyString() {
+        return StringUtil.getStringFromKey(publicKey);
+    }
+
+    PublicKey getPublicKey() {
+        return publicKey;
+    }
+
+    PrivateKey getPrivateKey() {
+        return privateKey;
+    }
 }

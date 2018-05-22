@@ -1,10 +1,9 @@
 import java.security.Key;
 import java.security.MessageDigest;
-import java.security.PrivateKey;
 import java.util.Base64;
 
-public class StringUtil {
-    public static String computeSha256Hash(String input) {
+class StringUtil {
+    static String computeSha256Hash(String input) {
         try {
             MessageDigest digestInstance = MessageDigest.getInstance("SHA-256");
 
@@ -29,7 +28,7 @@ public class StringUtil {
         }
     }
 
-    public static String getStringFromKey(Key key) {
+    static String getStringFromKey(Key key) {
         return Base64.getEncoder().encodeToString(key.getEncoded());
     }
 }
