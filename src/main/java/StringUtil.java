@@ -1,4 +1,7 @@
+import java.security.Key;
 import java.security.MessageDigest;
+import java.security.PrivateKey;
+import java.util.Base64;
 
 public class StringUtil {
     public static String computeSha256Hash(String input) {
@@ -9,8 +12,8 @@ public class StringUtil {
 
             StringBuilder hexString = new StringBuilder();
 
-            for (int i = 0; i < hash.length; ++i) {
-                String hex = Integer.toHexString(0xff & hash[i]);
+            for (byte aHash : hash) {
+                String hex = Integer.toHexString(0xff & aHash);
 
                 if (hex.length() == 1) {
                     hexString.append('0');
@@ -24,5 +27,9 @@ public class StringUtil {
         catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static String getStringFromKey(Key key) {
+        return Base64.getEncoder().encodeToString(key.getEncoded());
     }
 }
